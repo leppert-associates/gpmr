@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+scipy = "*"
+reportlab = "*"
+sqlalchemy = "*"
+numpy = "*"
+pandas = "*"
+pyodbc = "*"
+matplotlib = "*"
+pymannkendall = "*"
+
+[dev-packages]
+pylint = "*"
+autopep8 = "*"
+ipykernel = "*"
+flake8 = "*"
+
+[requires]
+python_version = "3.9"
