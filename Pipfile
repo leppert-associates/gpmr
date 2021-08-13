@@ -8,10 +8,10 @@ scipy = "*"
 reportlab = "*"
 sqlalchemy = "*"
 numpy = "*"
-pandas = "*"
 pyodbc = "*"
 matplotlib = "*"
 pymannkendall = "*"
+pandas = "*"
 
 [dev-packages]
 pylint = "*"
