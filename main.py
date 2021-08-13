@@ -3,44 +3,35 @@ import matplotlib.pyplot as plt
 
 
 # Create plots using lists of locations and parameters
-def plot_figs(df, locs, params):
+def plot_figs(df, params, wells=None):
     dfmi = df.set_index(['location', 'parameter', 'datetime']).sort_index()
-    for loc in locs:
+    if not wells:
+        wells = df['Location'].unique()
+    for well in wells:
         for param in params:
-            fig = plt.figure(figsize=(10, 7.5))
+            fig = plt.figure(figsize=(11, 8.5))
             ax = fig.add_subplot(111)
-            for p in params[param]:
-                sub_df = dfmi.loc[(loc, p)].reset_index(level='datetime')
+            for a in params[param]:
+                sub_df = dfmi.loc[(well, a)].reset_index()
                 sub_df['value'].fillna(
                     value=sub_df['detection_limit']/2, inplace=True)
-                sub_df.plot(x='datetime', y='value', kind='line',
-                            logy=True, grid=True, subplots=False, marker='o', label=p, title=f"{loc} {param}", ax=ax)
+                sub_df.plot(x='datetime', y='value', logy=True, grid=True,
+                            subplots=False, marker='o', label=a, title=f"{well} {param}", ax=ax)
             ax.set_xlabel('Date')
             ax.set_ylabel(f"Concentration ({sub_df.unit[0]})")
             ax.legend(loc='center left', frameon=False,
                       bbox_to_anchor=(1, 0.5))
             plt.tight_layout()
-            fig.savefig(f"output/{loc}_{param}", orientation='landscape')
+            fig.savefig(f"output/{well}_{param}", orientation='landscape')
             plt.close('all')
 
 
-# Put in postgres db...
-# Facility wide 'raw' data
-df = pd.read_csv(r'data/deertrail.csv',
-                 parse_dates=['datetime'], engine='python')
-
-# Multi-Index dataframe
-multi = df.set_index(['location', 'parameter', 'datetime']).sort_index()
-
-
-# Should be table in db that is brought in as multi-index
-locs = ['L3-42']  # df['Location'].unique()
-cas = {"Metals": ['7439-89-6', '7439-92-1', '7439-96-5', '7439-97-6', '7440-02-0', '7440-22-4',
-                  '7440-23-5', '7440-38-2', '7440-43-9', '7440-47-3', '7440-66-6', '7740-39-3', '7782-49-2']}
-params = {"Inorganic": ['Arsenic (Dissolved)', 'Arsenic (Total)', 'Chloride', 'Fluoride',
+# Get facility wide 'raw' data
+df = pd.read_csv(r'data/deertrail.csv', parse_dates=['datetime'])
+wells = ['L3-42']
+params = {'Inorganic': ['Arsenic (Dissolved)', 'Arsenic (Total)', 'Chloride', 'Fluoride',
                         'Nitrogen, Nitrate-Nitrite', 'Organic Carbon, Total', 'Sulfate', 'Zinc (Total)']}
 
 
 # need to check if we get a hit for every analyte in the permit
-# should really just add a column for analyte group to db
-plot_figs(df, locs, params)
+plot_figs(df, params, wells)
