@@ -1,37 +1,30 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+from utils.db import db_connect
+from utils.scrub import scrub_df
+from utils.plot_cvt import plot_cvt
 
 
-# Create plots using lists of locations and parameters
-def plot_figs(df, params, wells=None):
-    dfmi = df.set_index(['location', 'parameter', 'datetime']).sort_index()
-    if not wells:
-        wells = df['Location'].unique()
-    for well in wells:
-        for param in params:
-            fig = plt.figure(figsize=(11, 8.5))
-            ax = fig.add_subplot(111)
-            for a in params[param]:
-                sub_df = dfmi.loc[(well, a)].reset_index()
-                sub_df['value'].fillna(
-                    value=sub_df['detection_limit']/2, inplace=True)
-                sub_df.plot(x='datetime', y='value', logy=True, grid=True,
-                            subplots=False, marker='o', label=a, title=f"{well} {param}", ax=ax)
-            ax.set_xlabel('Date')
-            ax.set_ylabel(f"Concentration ({sub_df.unit[0]})")
-            ax.legend(loc='center left', frameon=False,
-                      bbox_to_anchor=(1, 0.5))
-            plt.tight_layout()
-            fig.savefig(f"output/{well}_{param}", orientation='landscape')
-            plt.close('all')
+# Print to csv from db
+def db_to_csv(path):
+    df = db_connect(path)
+    df.to_csv('data/deertrail_raw.csv', index=False)
+    clean_df = scrub_df(df)
+    clean_df.to_csv('data/deertrail.csv', index=False)
 
 
-# Get facility wide 'raw' data
-df = pd.read_csv(r'data/deertrail.csv', parse_dates=['datetime'])
-wells = ['L3-42']
-params = {'Inorganic': ['Arsenic (Dissolved)', 'Arsenic (Total)', 'Chloride', 'Fluoride',
-                        'Nitrogen, Nitrate-Nitrite', 'Organic Carbon, Total', 'Sulfate', 'Zinc (Total)']}
+# Get facility wide 'raw' data and plot
+def plot_me():
+    df = pd.read_csv(r'data/deertrail.csv', parse_dates=['DateTime'])
+    wells = ['L3-42']
+    params = {'Inorganic': ['Arsenic (Dissolved)', 'Arsenic (Total)', 'Chloride', 'Fluoride',
+                            'Nitrogen, Nitrate-Nitrite', 'Organic Carbon, Total', 'Sulfate', 'Zinc (Total)']}
+    # need to check if we get a hit for every analyte in the permit
+    flat_list = [j for sub in [*params.values()] for j in sub]
+    if(all(p in df['Parameter'].unique() for p in flat_list)):
+        plot_cvt(df, params, wells)
+    else:
+        print('Missing parameters')
 
 
-# need to check if we get a hit for every analyte in the permit
-plot_figs(df, params, wells)
+# plot_me()
+db_to_csv(r'C:\Users\iaxelrad\Documents\GitHub\gpmr\data\DeerTrail.accdb')

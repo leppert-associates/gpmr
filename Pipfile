@@ -12,6 +12,7 @@ pyodbc = "*"
 matplotlib = "*"
 pymannkendall = "*"
 pandas = "*"
+flask = "*"
 
 [dev-packages]
 pylint = "*"
