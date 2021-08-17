@@ -41,14 +41,15 @@ def db_field(db_path: str, driver='{Microsoft Access Driver (*.mdb, *.accdb)}') 
     SELECT
     r.CollectionTime, r.Value,
     p.ParameterName,
-    u.UnitName
+    u.UnitName,
+    l.Location
     FROM (((FieldResult AS r
         LEFT OUTER JOIN Unit AS u
             ON u.UnitID = r.UnitID)
         LEFT OUTER JOIN FieldParameter AS p
             ON p.FieldParameterID = r.FieldParameterID)
         LEFT OUTER JOIN Location AS l
-            ON l.LocationID = c.LocationID)
+            ON l.LocationID = r.LocationID)
     """)
     df = pd.DataFrame(pd.read_sql_query(sql, conn))
     conn.close()

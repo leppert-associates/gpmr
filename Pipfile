@@ -13,6 +13,12 @@ matplotlib = "*"
 pymannkendall = "*"
 pandas = "*"
 flask = "*"
+dash = "*"
+plotly = "*"
+dash-bootstrap-components = "*"
+dash-auth = "*"
+python-dotenv = "*"
+flask-login = "*"
 
 [dev-packages]
 pylint = "*"
