@@ -16,26 +16,34 @@ body {
   grid-template-columns: 1fr 3fr;
   grid-template-rows: auto 1fr;
   align-items: start;
-  min-height: 100%;
+  min-height: calc(100vh - 2rem);
 }
 
 nav {
   padding: 1rem;
   display: flex;
   justify-content: space-between;
-  background: whitesmoke;
   grid-column: 1/-1;
+  border-block-end: 1px solid lightgray;
+  background: whitesmoke;
 }
 
-nav h1 {
+h1 {
+  margin: 0;
+}
+
+a.title {
+  color: currentColor;
+  text-decoration: none;
   margin: 0;
 }
 
 aside {
-  background: whitesmoke;
   display: flex;
   align-items: start;
   flex-direction: column;
+  border-right: 1px solid lightgray;
+  height: 100%;
 }
 
 main {
@@ -46,8 +54,48 @@ label {
   padding: 1rem 0;
 }
 
+ul,
+li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+div.output {
+  overflow-y: scroll;
+  max-height: 10rem;
+  background: whitesmoke;
+  font-family: monospace;
+  display: flex;
+  flex-direction: column-reverse;
+  border: 1px solid lightgray;
+}
+
+a.button {
+  text-decoration: none;
+  color: currentColor;
+  background: whitesmoke;
+  border: 1px solid lightgrey;
+  padding: 0.5rem 1rem;
+  display: flex;
+  width: fit-content;
+}
+
+a.button:hover {
+  cursor: pointer;
+}
+
+.flex {
+  display: flex;
+}
+
 .container {
   padding: 1rem;
+}
+
+.dash-dropdown,
+.Select-control {
+  width: 100%;
 }
 
 .DateRangePicker {

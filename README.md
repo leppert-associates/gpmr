@@ -8,9 +8,11 @@ Run the command `pipenv install` to install the necessary packages.
 
 ## Development Server
 
-To start a development server, first set your `FLASK_APP` environmental variable to the application name, then start the application suing the `flask run` command.
+To start a development server, first enter the project environment with `pipenv shell` , then start the application by calling the script `py app.py`.
 
 ```sh
-$env:FLASK_APP = "ecims"
-flask run
+pipenv shell
+py app.py
 ```
+
+The development will start on `http://127.0.0.1:8050/` by default.

@@ -46,4 +46,5 @@ def scrub_df(df):
            & (df['method'].isna()), ['method']] = "Field"
     df.loc[(df['parameter'].str.contains(r', Field', na=False, flags=re.IGNORECASE)), ['parameter']] = df['parameter'].str.replace(
         r', Field', r'', flags=re.IGNORECASE)
+    # separate field df
     return df
