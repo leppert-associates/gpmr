@@ -12,15 +12,17 @@ app.layout = html.Div([
         html.Div([
             html.Img(src=app.get_asset_url('favicon.ico')),
             dcc.Link(
-                html.H1('Leppert Associates'), href='/', className='title')
+                html.H1('GPMR'), href='/', className='title')
         ], className='flex'),
-        html.H1('ECIMS'), dcc.Link('Login', href='/login')
+        html.A('Source', href='https://github.com/ItaiAxelrad/gpmr')
     ]),
     html.Div(id='page-content'),
 ])
 
 
 index_layout = html.Div([
+    html.P('Welcome to the groundwater protection monitoring report application.'),
+    html.P('Please select a facility to view data.'),
     html.Label('Facility'),
     dcc.Dropdown(id='facility',
                  options=[
@@ -30,11 +32,7 @@ index_layout = html.Div([
                  placeholder='Select a facility',
                  style={'width': '40%'}
                  ),
-    html.Div([
-        dcc.Link('Data Page', href='/routes/data', className='button'),
-        dcc.Link('New Report', href='/routes/data', className='button'),
-        dcc.Link('Edit Report', href='/routes/data', className='button'),
-    ], className='buttons container')
+    dcc.Link('Data Page', href='/routes/data', className='button'),
 ], className='container')
 
 

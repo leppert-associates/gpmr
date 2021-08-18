@@ -12,7 +12,7 @@ To start a development server, first enter the project environment with `pipenv 
 
 ```sh
 pipenv shell
-py app.py
+py index.py
 ```
 
 The development will start on `http://127.0.0.1:8050/` by default.

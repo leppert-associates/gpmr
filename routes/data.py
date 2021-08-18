@@ -1,7 +1,6 @@
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
-from dash_html_components import Summary
 import pandas as pd
 import plotly.express as px
 
@@ -59,28 +58,33 @@ layout = html.Div([
     # Input('reporting-period', 'children'),
 )
 def update_graph(location, parameter):
-    dfmic = dfmi.loc[(location, parameter)].reset_index()
-    dfmic['value'].fillna(
-        value=dfmic['detection_limit']/2, inplace=True)
-    dfmic.sort_values(by='datetime', inplace=True)
-    # get sum stats
-    description = dfmic['value'].describe().reset_index()
-    desc_list = list(description.itertuples(index=False, name=None))
-    summary = html.Ul(
-        id='sum-list', children=[html.Li(f"{i[0]}: {i[1]}") for i in desc_list])
+    try:
+        dfmic = dfmi.loc[(location, parameter)].reset_index()
+        dfmic['value'].fillna(
+            value=dfmic['detection_limit']/2, inplace=True)
+        dfmic.sort_values(by='datetime', inplace=True)
+        # get sum stats
+        description = dfmic['value'].describe().reset_index()
+        desc_list = list(description.itertuples(index=False, name=None))
+        summary = html.Ul(
+            id='sum-list', children=[html.Li(f"{i[0]}: {i[1]}") for i in desc_list])
 
-    # Plotly Express
-    fig = px.line(
-        dfmic,
-        x='datetime',
-        y='value',
-        title='Time vs Concentration',
-        labels={
-            "datetime": "Date",
-            "value": f"Concentration ({dfmic.unit[0]})"
-        },
-        template='seaborn',
-        markers=True,
-    )
+        # Plotly Express
+        fig = px.line(
+            dfmic,
+            x='datetime',
+            y='value',
+            title='Time vs Concentration',
+            labels={
+                "datetime": "Date",
+                "value": f"Concentration ({dfmic.unit[0]})"
+            },
+            template='seaborn',
+            markers=True,
+        )
+
+    except KeyError:
+        summary = ''
+        fig = px.line(None, template='seaborn')
 
     return summary, fig
