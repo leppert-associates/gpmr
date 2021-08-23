@@ -15,4 +15,4 @@ pipenv shell
 py index.py
 ```
 
-The development will start on `http://127.0.0.1:8050/` by default.
+The development will start on localhost port 8050, `http://127.0.0.1:8050/` by default.

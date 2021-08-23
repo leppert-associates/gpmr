@@ -3,7 +3,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 from app import app
-from routes import data
+from routes import notfound, home, data
 
 
 app.layout = html.Div([
@@ -14,35 +14,31 @@ app.layout = html.Div([
             dcc.Link(
                 html.H1('GPMR'), href='/', className='title')
         ], className='flex'),
-        html.A('Source', href='https://github.com/ItaiAxelrad/gpmr')
+        html.Div([
+            html.Img(src=app.get_asset_url(
+                'github-brands.svg'), className='icon'),
+            html.A('Source', href='https://github.com/ItaiAxelrad/gpmr')
+        ], className='flex')
     ]),
-    html.Div(id='page-content'),
-])
+    html.Aside(children=[], id='user_input', className='container'),
+    html.Main(children=[], id='display', className='container')
+], id='root')
 
 
-index_layout = html.Div([
-    html.P('Welcome to the groundwater protection monitoring report application.'),
-    html.P('Please select a facility to view data.'),
-    html.Label('Facility'),
-    dcc.Dropdown(id='facility',
-                 options=[
-                     {'label': 'Deer Trail', 'value': 'Deer Trail'}
-                 ],
-                 multi=False,
-                 placeholder='Select a facility',
-                 style={'width': '40%'}
-                 ),
-    dcc.Link('Data Page', href='/routes/data', className='button'),
-], className='container')
+def get_layouts(page):
+    return page.user_input, page.display
 
 
-@app.callback(Output('page-content', 'children'),
+@app.callback(Output('user_input', 'children'),
+              Output('display', 'children'),
               Input('url', 'pathname'))
 def display_page(pathname):
-    if pathname == '/routes/data':
-        return data.layout
+    if pathname == '/':
+        return get_layouts(home)
+    elif pathname == '/routes/data':
+        return get_layouts(data)
     else:
-        return index_layout
+        return get_layouts(notfound)
 
 
 if __name__ == '__main__':

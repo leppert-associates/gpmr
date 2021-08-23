@@ -17,6 +17,7 @@ body {
   grid-template-rows: auto 1fr;
   align-items: start;
   min-height: calc(100vh - 2rem);
+  padding: 0;
 }
 
 nav {
@@ -38,16 +39,18 @@ a.title {
   margin: 0;
 }
 
+img.icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  color: currentColor;
+}
+
 aside {
   display: flex;
   align-items: start;
   flex-direction: column;
   border-right: 1px solid lightgray;
   height: 100%;
-}
-
-main {
-  padding: 1rem;
 }
 
 label {
@@ -62,13 +65,8 @@ li {
 }
 
 div.output {
-  overflow-y: scroll;
-  max-height: 10rem;
-  background: whitesmoke;
+  padding: 0;
   font-family: monospace;
-  display: flex;
-  flex-direction: column-reverse;
-  border: 1px solid lightgray;
 }
 
 a.button {
@@ -76,6 +74,7 @@ a.button {
   color: currentColor;
   background: whitesmoke;
   border: 1px solid lightgrey;
+  margin: 0.5rem 0;
   padding: 0.5rem 1rem;
   display: flex;
   width: fit-content;
@@ -87,6 +86,8 @@ a.button:hover {
 
 .flex {
   display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .container {
