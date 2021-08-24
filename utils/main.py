@@ -9,7 +9,7 @@ def db_to_csv(path):
     df = db_connect(path)
     df.to_csv('data/deertrail_raw.csv', index=False)
     clean_df = scrub_df(df)
-    clean_df.to_csv('data/deertrail.csv', index=False)
+    clean_df.to_csv('data/deertrail_lab.csv', index=False)
 
 
 # Get facility wide 'raw' data and plot
@@ -28,5 +28,5 @@ def plot_me():
 
 # plot_me()
 # db_to_csv(r'C:\Users\iaxelrad\Documents\GitHub\gpmr\data\DeerTrail.accdb')
-df = db_field(r'C:\Users\iaxelrad\Documents\GitHub\gpmr\data\DeerTrail.accdb')
-df.to_csv('data/field.csv', index=False)
+# df = db_field(r'C:\Users\iaxelrad\Documents\GitHub\gpmr\data\DeerTrail.accdb')
+# df.to_csv('data/deertrail_field.csv', index=False)

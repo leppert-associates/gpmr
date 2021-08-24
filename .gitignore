@@ -1,4 +1,7 @@
 __pycahce__
+venv
+*.pyc
+.DS_Store
 .vscode
 Pipfile.lock
 *.accdb

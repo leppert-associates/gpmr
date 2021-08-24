@@ -1,3 +1,10 @@
+:root {
+  --text: #222;
+  --primary: #4c72b0;
+  --background: #eaeaf2;
+  --border: lightgray;
+}
+
 html {
   box-sizing: border-box;
   scroll-behavior: smooth;
@@ -7,7 +14,7 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: system-ui, sans-serif;
-  color: #222;
+  color: var(--text);
   background: white;
 }
 
@@ -25,18 +32,24 @@ nav {
   display: flex;
   justify-content: space-between;
   grid-column: 1/-1;
-  border-block-end: 1px solid lightgray;
-  background: whitesmoke;
+  border-block-end: 1px solid var(--border);
+  /* background: var(--background); */
 }
 
 h1 {
+  font-size: 2rem;
   margin: 0;
 }
 
-a.title {
-  color: currentColor;
+a {
+  color: var(--primary);
   text-decoration: none;
+}
+
+a.title {
   margin: 0;
+  text-decoration: none;
+  color: currentColor;
 }
 
 img.icon {
@@ -49,12 +62,12 @@ aside {
   display: flex;
   align-items: start;
   flex-direction: column;
-  border-right: 1px solid lightgray;
+  border-right: 1px solid var(--border);
   height: 100%;
 }
 
 label {
-  padding: 1rem 0;
+  padding-block-start: 1rem;
 }
 
 ul,
@@ -72,22 +85,30 @@ div.output {
 a.button {
   text-decoration: none;
   color: currentColor;
-  background: whitesmoke;
-  border: 1px solid lightgrey;
+  background: var(--background);
+  border: 1px solid var(--border);
   margin: 0.5rem 0;
   padding: 0.5rem 1rem;
   display: flex;
-  width: fit-content;
+  justify-content: center;
+  width: 100%;
+  border-radius: 4px;
 }
 
 a.button:hover {
   cursor: pointer;
+  border-color: var(--primary);
 }
 
 .flex {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.wrapper {
+  width: 100%;
+  margin-block-start: 2rem;
 }
 
 .container {
@@ -102,6 +123,7 @@ a.button:hover {
 .DateRangePicker {
   width: 100%;
 }
+
 /* hide plotly toolbar */
 .modebar {
   display: none !important;

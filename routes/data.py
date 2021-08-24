@@ -3,19 +3,16 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import plotly.express as px
-from utils.api import get_data
+import utils.api as api
 
-# grab data from csv, will be sqlite3...
-df = get_data()
-dfmi = df.set_index(['location', 'parameter', 'datetime']).sort_index()
 
 # Data page
 user_input = [
-    html.H2('Inputs'),
+    html.H2('Input'),
     html.Label('Monitoring Well'),
     dcc.Dropdown(id='location',
                  options=[
-                     {'label': loc, 'value': loc} for loc in df['location'].unique()
+                     {'label': loc, 'value': loc} for loc in api.get_locations()
                  ],
                  multi=False,
                  placeholder='Select a well'
@@ -23,19 +20,22 @@ user_input = [
     html.Label('Analyte'),
     dcc.Dropdown(id='parameter',
                  options=[
-                     {'label': param, 'value': param} for param in df['parameter'].unique()
+                     {'label': param, 'value': param} for param in api.get_parameters()
                  ],
                  multi=False,
                  placeholder='Select a parameter'
                  ),
-    html.H2('Output'),
-    html.Div(id='output_container',
-             className='output container', children=[])]
+    html.Div([html.H2('Output'),
+              html.Div(id='output_container',
+             className='output container', children=[])], className='wrapper'),
+]
 
 
 display = [html.H2('Display'),
-           dcc.Graph(id='linechart', responsive=True, figure=px.line(
-               None, template='seaborn'))]
+           dcc.Loading(type='circle', color='#4c72b0', children=[
+               dcc.Graph(id='linechart', responsive=True, figure=px.line(
+                   None, template='seaborn'))])
+           ]
 
 
 # Connect the Plotly graphs with Dash Components
@@ -47,13 +47,7 @@ display = [html.H2('Display'),
 )
 def update_graph(location, parameter):
     if location and parameter:
-        dfmic = dfmi.loc[(location, parameter)].reset_index()
-        dfmic['value'].fillna(
-            value=dfmic['detection_limit']/2, inplace=True)
-        dfmic.sort_values(by='datetime', inplace=True)
-        # get sum stats
-        description = dfmic['value'].describe().reset_index()
-        desc_list = list(description.itertuples(index=False, name=None))
+        dfmic, desc_list = api.get_data(location, parameter)
         summary = html.Ul(
             id='sum-list', children=[html.Li(f"{i[0]}: {i[1]}") for i in desc_list])
 

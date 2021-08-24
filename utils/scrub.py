@@ -5,11 +5,9 @@ import pandas as pd
 # cleans the incoming data
 def scrub_df(df):
     # Format dataframe, sort by date
-    # CAS,Parameter,Value,Unit,DetectionLimit,DilutionFactor,MDL,Method,SampleNumber,DataQualifier,Time,Laboratory,Location
-    # df.rename(columns={'CASNumber': 'CAS', 'ParameterName': 'Parameter',
-    #           'UnitName': 'Unit', 'CollectionTime': 'DateTime'}, inplace=True)
-    df.columns = ['cas', 'parameter', 'value', 'unit', 'detection_limit', 'dilution_factor',
-                  'mdl', 'method', 'sample_number', 'qualifier', 'datetime', 'laboratory', 'location']
+    df.columns = ['cas', 'parameter', 'value', 'unit', 'detection_limit',
+                  'dilution_factor', 'mdl', 'method', 'sample_number',
+                  'qualifier', 'datetime', 'laboratory', 'location']
     df['datetime'] = pd.to_datetime(df['datetime'])
     df.sort_values('datetime', inplace=True)
     df.reset_index(inplace=True, drop=True)
@@ -46,5 +44,24 @@ def scrub_df(df):
            & (df['method'].isna()), ['method']] = "Field"
     df.loc[(df['parameter'].str.contains(r', Field', na=False, flags=re.IGNORECASE)), ['parameter']] = df['parameter'].str.replace(
         r', Field', r'', flags=re.IGNORECASE)
+    # Unit conversion ppm to mg/L
+    df.loc[(df['unit'].str.contains(r'ppm', na=False, flags=re.IGNORECASE)), ['unit']] = df['unit'].str.replace(
+        r'ppm', r'mg/L', flags=re.IGNORECASE)
     # separate field df
+    # df_field = df[df['method'] == 'Field']
+    # df.drop(df[df['method'] == 'Field'].index, inplace=True)
     return df
+
+
+analyte_groups = {
+    'physical properties': [],
+    'inorganic': [],
+    'metals': [],
+    'volatile organics': [],
+    'semivolatile compounds': [],
+    'organochloride pesticides': [],
+    'polychlorinated biphenyls': [],
+    'chlorinated herbicides': [],
+    'organophosphorus pesticides': [],
+    'radioactivity': []
+}

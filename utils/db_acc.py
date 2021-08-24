@@ -1,4 +1,3 @@
-import textwrap
 import pyodbc
 import pandas as pd
 
@@ -9,7 +8,7 @@ def db_connect(db_path: str, driver='{Microsoft Access Driver (*.mdb, *.accdb)}'
         f"DBQ={db_path};"
     )
     conn = pyodbc.connect(conn_str)
-    sql = textwrap.dedent("""
+    sql = """
     SELECT
     p.CASNumber, p.ParameterName,
     r.Value, u.UnitName, r.DetectionLimit, r.DilutionFactor, r.MDL, r.Method, r.SampleNumber, r.DataQualifier,
@@ -24,7 +23,7 @@ def db_connect(db_path: str, driver='{Microsoft Access Driver (*.mdb, *.accdb)}'
             ON c.AnalyteCollectID = r.AnalyteCollectID)
         LEFT OUTER JOIN Location AS l
             ON l.LocationID = c.LocationID)
-    """)
+    """
     df = pd.DataFrame(pd.read_sql_query(sql, conn))
     conn.close()
     return df
@@ -37,7 +36,7 @@ def db_field(db_path: str, driver='{Microsoft Access Driver (*.mdb, *.accdb)}') 
         f"DBQ={db_path};"
     )
     conn = pyodbc.connect(conn_str)
-    sql = textwrap.dedent("""
+    sql = """
     SELECT
     r.CollectionTime, r.Value,
     p.ParameterName,
@@ -50,7 +49,7 @@ def db_field(db_path: str, driver='{Microsoft Access Driver (*.mdb, *.accdb)}') 
             ON p.FieldParameterID = r.FieldParameterID)
         LEFT OUTER JOIN Location AS l
             ON l.LocationID = r.LocationID)
-    """)
+    """
     df = pd.DataFrame(pd.read_sql_query(sql, conn))
     conn.close()
     return df
