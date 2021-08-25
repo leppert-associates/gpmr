@@ -4,28 +4,17 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-scipy = "*"
-reportlab = "*"
-sqlalchemy = "*"
 numpy = "*"
-pyodbc = "*"
 matplotlib = "*"
-pymannkendall = "*"
 pandas = "*"
 flask = "*"
 dash = "*"
 plotly = "*"
-dash-bootstrap-components = "*"
-dash-auth = "*"
-python-dotenv = "*"
-flask-login = "*"
 
 [dev-packages]
 pylint = "*"
 autopep8 = "*"
 ipykernel = "*"
-flake8 = "*"
-black = "*"
 
 [requires]
 python_version = "3.9"

@@ -6,13 +6,17 @@ import plotly.express as px
 import utils.api as api
 
 
+# load dataframe from csv
+df = api.load_data(r'data/deertrail_lab.csv')
+
+
 # Data page
 user_input = [
     html.H2('Input'),
     html.Label('Monitoring Well'),
     dcc.Dropdown(id='location',
                  options=[
-                     {'label': loc, 'value': loc} for loc in api.get_locations()
+                     {'label': loc, 'value': loc} for loc in api.get_locations(df)
                  ],
                  multi=False,
                  placeholder='Select a well'
@@ -20,14 +24,14 @@ user_input = [
     html.Label('Analyte'),
     dcc.Dropdown(id='parameter',
                  options=[
-                     {'label': param, 'value': param} for param in api.get_parameters()
+                     {'label': param, 'value': param} for param in api.get_parameters(df)
                  ],
                  multi=False,
                  placeholder='Select a parameter'
                  ),
     html.Div([html.H2('Output'),
               html.Div(id='output_container',
-             className='output container', children=[])], className='wrapper'),
+                       className='output container', children=[])], className='wrapper'),
 ]
 
 
@@ -47,25 +51,33 @@ display = [html.H2('Display'),
 )
 def update_graph(location, parameter):
     if location and parameter:
-        dfmic, desc_list = api.get_data(location, parameter)
-        summary = html.Ul(
-            id='sum-list', children=[html.Li(f"{i[0]}: {i[1]}") for i in desc_list])
+        try:
+            dfmic = api.get_data(df, location, parameter)
+            if dfmic.empty:
+                print('DataFrame is empty!')
+                return 'No data to display', px.line(None, template='seaborn')
+            desc_list = api.get_description(dfmic)
+            summary = html.Ul(
+                id='sum-list', children=[html.Li(f"{i[0]}: {i[1]}") for i in desc_list])
 
-        # Plotly Express
-        fig = px.line(
-            dfmic,
-            x='datetime',
-            y='value',
-            title='Time vs Concentration',
-            labels={
-                "datetime": "Date",
-                "value": f"Concentration ({dfmic.unit[0]})"
-            },
-            template='seaborn',
-            markers=True,
-        )
+            # Plotly Express
+            fig = px.line(
+                dfmic,
+                x='datetime',
+                y='value',
+                title='Time vs Concentration',
+                labels={
+                    "datetime": "Date",
+                    "value": f"Concentration ({dfmic.unit[0]})"
+                },
+                template='seaborn',
+                markers=True,
+            )
 
-        return summary, fig
-    # keep it empty if no inputs
+            return summary, fig
+
+        except KeyError:
+            return 'No data for selection', px.line(None, template='seaborn')
+
     else:
         return '', px.line(None, template='seaborn')

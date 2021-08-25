@@ -11,7 +11,8 @@ app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     html.Nav([
         html.Div([
-            html.Img(src=app.get_asset_url('favicon.ico')),
+            html.Img(src=app.get_asset_url('logo.png'),
+                     style={'height': '2rem'}),
             dcc.Link(
                 html.H1('GPMR'), href='/', className='title')
         ], className='flex'),
@@ -31,9 +32,9 @@ def get_layouts(page):
     return page.user_input, page.display
 
 
-@app.callback(Output('user_input', 'children'),
-              Output('display', 'children'),
-              Input('url', 'pathname'))
+@ app.callback(Output('user_input', 'children'),
+               Output('display', 'children'),
+               Input('url', 'pathname'))
 def display_page(pathname):
     if pathname == '/':
         return get_layouts(home)
@@ -44,9 +45,9 @@ def display_page(pathname):
 
 
 # add a click to the appropriate store
-@app.callback(Output('store', 'data'),
-              Input('dtype', 'value'),
-              State('store', 'data'))
+@ app.callback(Output('store', 'data'),
+               Input('dtype', 'value'),
+               State('store', 'data'))
 def on_click(value, data):
     if value is None:
         raise PreventUpdate
@@ -56,14 +57,13 @@ def on_click(value, data):
 
 
 # output the stored data
-@app.callback(Output('store-value', 'children'),
-              Input('store', 'modified_timestamp'),
-              State('store', 'data'))
+@ app.callback(Output('store-value', 'children'),
+               Input('store', 'modified_timestamp'),
+               State('store', 'data'))
 def on_data(ts, data):
     if ts is None:
         raise PreventUpdate
     data = data or {}
-    print(data['dtype'])
     return data.get('dtype', 0)
 
 

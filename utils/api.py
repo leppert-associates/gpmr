@@ -2,28 +2,31 @@ import pandas as pd
 
 
 # load csv file to dataframe
-df = pd.read_csv(r'data/deertrail_lab.csv', parse_dates=['datetime'])
+# df = pd.read_csv('data/deertrail_lab.csv', parse_dates=['datetime'])
+def load_data(path):
+    return pd.read_csv(path, parse_dates=['datetime'])
 
 
-def get_locations(df=df):
+def get_locations(df):
     return df['location'].unique()
 
 
-def get_parameters(df=df):
+def get_parameters(df):
     return df['parameter'].unique()
 
 
-def get_data(location, parameter, df=df):
+def get_data(df, location, parameter):
     dfmi = df.set_index(['location', 'parameter', 'datetime']).sort_index()
     dfmic = dfmi.loc[(location, parameter)].reset_index()
     dfmic['value'].fillna(
         value=dfmic['detection_limit']/2, inplace=True)
     dfmic.sort_values(by='datetime', inplace=True)
-    # get sum stats
-    desc_list = list(dfmic['value'].describe(
-    ).reset_index().itertuples(index=False, name=None))
+    return dfmic
 
-    return dfmic, desc_list
+
+def get_description(dfmi):
+    return list(dfmi['value'].describe(
+    ).reset_index().itertuples(index=False, name=None))
 
 
 # should use sqlite, and write api
