@@ -5,7 +5,7 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 import utils.api as api
 
-data = api.Data(r'data/deertrail_lab.csv')
+data = api.Data(r'data/lab_data.csv')
 
 app = dash.Dash(__name__, title='GPMR')
 server = app.server
@@ -30,7 +30,6 @@ app.layout = html.Div([
         html.Label('Monitoring Well'),
         dcc.Dropdown(id='location',
                      options=[
-                         # api.get_locations(df)
                          {'label': loc, 'value': loc} for loc in data.locations
                      ],
                      multi=False,
@@ -39,7 +38,6 @@ app.layout = html.Div([
         html.Label('Analyte'),
         dcc.Dropdown(id='parameter',
                      options=[
-                         # api.get_parameters(df)
                          {'label': param, 'value': param} for param in data.parameters
                      ],
                      multi=False,
