@@ -1,36 +1,35 @@
 import pandas as pd
 
 
-# load csv file to dataframe
-# df = pd.read_csv('data/deertrail_lab.csv', parse_dates=['datetime'])
-def load_data(path):
-    return pd.read_csv(path, parse_dates=['datetime'])
+class Data:
+
+    def __init__(self, path: str) -> None:
+        # Open connection to database instead
+        self.df = pd.read_csv(path, parse_dates=['datetime']).set_index(
+            ['location', 'parameter', 'datetime']).sort_values(by='datetime').sort_index()
+
+    @property
+    def locations(self):
+        # SELECT DISTINCT location FROM lab
+        return self.df.index.unique('location')
+
+    @property
+    def parameters(self):
+        # SELECT DISTINCT parameter FROM lab
+        return self.df.index.unique('parameter')
+
+    def fill_na(self):
+        self.df['value'].fillna(
+            value=self.df['detection_limit']/2, inplace=True)
+        return self
+
+    def get_data(self, location, parameter):
+        # "SELECT value, datetime, detection_limit
+        # WHERE location = ? AND parameter = ?",
+        # (location, parameter)
+        return self.df.loc[(location, parameter)].reset_index()
 
 
-def get_locations(df):
-    return df['location'].unique()
-
-
-def get_parameters(df):
-    return df['parameter'].unique()
-
-
-def get_data(df, location, parameter):
-    dfmi = df.set_index(['location', 'parameter', 'datetime']).sort_index()
-    dfmic = dfmi.loc[(location, parameter)].reset_index()
-    dfmic['value'].fillna(
-        value=dfmic['detection_limit']/2, inplace=True)
-    dfmic.sort_values(by='datetime', inplace=True)
-    return dfmic
-
-
-def get_description(dfmi):
-    return list(dfmi['value'].describe(
+def get_description(df):
+    return list(df['value'].describe(
     ).reset_index().itertuples(index=False, name=None))
-
-
-# should use sqlite or postgres,
-#
-# SELECT DISTINCT location, parameter FROM lab
-# SELECT * WHERE location = ? AND parameter = ?
-#

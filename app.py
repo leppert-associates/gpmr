@@ -5,12 +5,11 @@ from dash.dependencies import Input, Output
 import plotly.express as px
 import utils.api as api
 
+data = api.Data(r'data/deertrail_lab.csv')
 
 app = dash.Dash(__name__, title='GPMR')
 server = app.server
 
-# load dataframe from csv
-df = api.load_data(r'data/deertrail_lab.csv')
 
 app.layout = html.Div([
     html.Nav([
@@ -31,7 +30,8 @@ app.layout = html.Div([
         html.Label('Monitoring Well'),
         dcc.Dropdown(id='location',
                      options=[
-                         {'label': loc, 'value': loc} for loc in api.get_locations(df)
+                         # api.get_locations(df)
+                         {'label': loc, 'value': loc} for loc in data.locations
                      ],
                      multi=False,
                      placeholder='Select a well'
@@ -39,7 +39,8 @@ app.layout = html.Div([
         html.Label('Analyte'),
         dcc.Dropdown(id='parameter',
                      options=[
-                         {'label': param, 'value': param} for param in api.get_parameters(df)
+                         # api.get_parameters(df)
+                         {'label': param, 'value': param} for param in data.parameters
                      ],
                      multi=False,
                      placeholder='Select a parameter'
@@ -73,23 +74,23 @@ app.layout = html.Div([
 def update_graph(location, parameter, yaxis_type):
     if location and parameter:
         try:
-            dfmic = api.get_data(df, location, parameter)
-            if dfmic.empty:
+            df = data.fill_na().get_data(location, parameter)
+            if df.empty:
                 print('DataFrame is empty!')
                 return 'No data to display', px.line(None, template='seaborn')
-            desc_list = api.get_description(dfmic)
+            desc_list = api.get_description(df)
             summary = html.Ul(
                 id='sum-list', children=[html.Li(f"{i[0]}: {i[1]}") for i in desc_list])
 
             # Plotly Express
             fig = px.line(
-                dfmic,
+                df,
                 x='datetime',
                 y='value',
                 title='Time vs Concentration',
                 labels={
                     "datetime": "Date",
-                    "value": f"Concentration ({dfmic.unit[0]})"
+                    "value": f"Concentration ({df.unit[0]})"
                 },
                 template='seaborn',
                 markers=True,
