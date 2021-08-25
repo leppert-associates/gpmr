@@ -29,7 +29,7 @@ def get_description(dfmi):
     ).reset_index().itertuples(index=False, name=None))
 
 
-# should use sqlite, and write api
+# should use sqlite or postgres,
 #
 # SELECT DISTINCT location, parameter FROM lab
 # SELECT * WHERE location = ? AND parameter = ?
