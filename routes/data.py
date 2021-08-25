@@ -29,17 +29,23 @@ user_input = [
                  multi=False,
                  placeholder='Select a parameter'
                  ),
+    html.Label('Y-Axis Type'),
+    dcc.RadioItems(
+        id='yaxis-type',
+        options=[{'label': i, 'value': i} for i in ['Linear', 'Log']],
+        value='Linear',
+        labelStyle={'display': 'inline-block'}
+    ),
     html.Div([html.H2('Output'),
-              html.Div(id='output_container',
-                       className='output container', children=[])], className='wrapper'),
-]
+              dcc.Loading(type='circle', color='#4c72b0', children=[
+                  html.Div(id='output_container',
+                           className='output container', children=[])
+              ], className='wrapper')])]
 
 
 display = [html.H2('Display'),
-           dcc.Loading(type='circle', color='#4c72b0', children=[
-               dcc.Graph(id='linechart', responsive=True, figure=px.line(
-                   None, template='seaborn'))])
-           ]
+           dcc.Graph(id='linechart', responsive=True, figure=px.line(
+               None, template='seaborn'))]
 
 
 # Connect the Plotly graphs with Dash Components
@@ -48,8 +54,9 @@ display = [html.H2('Display'),
     Output('linechart', 'figure'),
     Input('location', 'value'),
     Input('parameter', 'value'),
+    Input('yaxis-type', 'value'),
 )
-def update_graph(location, parameter):
+def update_graph(location, parameter, yaxis_type):
     if location and parameter:
         try:
             dfmic = api.get_data(df, location, parameter)
@@ -73,7 +80,9 @@ def update_graph(location, parameter):
                 template='seaborn',
                 markers=True,
             )
-
+            fig.update_yaxes(type='linear' if yaxis_type ==
+                             'Linear' else 'log')
+            fig.update_layout(transition_duration=250)
             return summary, fig
 
         except KeyError:
