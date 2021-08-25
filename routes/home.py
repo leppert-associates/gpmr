@@ -1,8 +1,5 @@
-from app import app
-import dash_core_components as dcc
-import dash_html_components as html
-from dash.dependencies import Input, Output, State
-from dash.exceptions import PreventUpdate
+from dash import dcc
+from dash import html
 
 user_input = [
     html.H2('Input'),

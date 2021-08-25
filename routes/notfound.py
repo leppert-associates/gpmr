@@ -1,5 +1,5 @@
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 
 user_input = html.Div([
     html.H1('Page not found'),

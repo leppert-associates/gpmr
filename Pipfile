@@ -4,10 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-numpy = "*"
-matplotlib = "*"
 pandas = "*"
-flask = "*"
 dash = "*"
 plotly = "*"
 
