@@ -9,6 +9,7 @@ dash = "*"
 plotly = "*"
 
 [dev-packages]
+gunicorn = "*"
 pylint = "*"
 autopep8 = "*"
 ipykernel = "*"
