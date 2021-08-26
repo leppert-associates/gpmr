@@ -1,4 +1,4 @@
-pandas = "*"
-dash = "*"
-plotly = "*"
-gunicorn = "*"
+pandas == "*"
+dash == "*"
+plotly == "*"
+gunicorn == "*"
