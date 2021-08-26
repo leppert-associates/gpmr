@@ -19,4 +19,4 @@ The development will start on localhost port 8050, `http://127.0.0.1:8050/` by d
 
 ## Production
 
-To update `requirements.txt` run `pipreqs --force`.
+To update `requirements.txt` run `pipreqs --force`. Be sure to add `gunicorn`.
