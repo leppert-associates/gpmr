@@ -1,7 +1,8 @@
 :root {
   --text: #222;
-  --primary: #4c72b0;
-  --background: #eaeaf2;
+  --primary: #0075fe;
+  --secondary: #eaeaf2;
+  --background: white;
   --border: lightgray;
 }
 
@@ -15,7 +16,7 @@ body {
   min-height: 100vh;
   font-family: system-ui, sans-serif;
   color: var(--text);
-  background: white;
+  background: var(--background);
 }
 
 #root {
@@ -33,7 +34,6 @@ nav {
   justify-content: space-between;
   grid-column: 1/-1;
   border-block-end: 1px solid var(--border);
-  /* background: var(--background); */
 }
 
 h1 {
@@ -66,11 +66,12 @@ aside {
   display: flex;
   align-items: start;
   flex-direction: column;
+  gap: 1.5rem;
   border-right: 1px solid var(--border);
   height: 100%;
 }
 
-label {
+label.label {
   padding: 1rem 0 0.5rem;
 }
 
@@ -111,8 +112,9 @@ a.button:hover {
 }
 
 .wrapper {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  margin-block-start: 2rem;
 }
 
 .container {

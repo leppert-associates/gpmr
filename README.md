@@ -1,3 +1,15 @@
+# chain callback - only get parameters from selected well
+
+## Things to address in scrub datavis dir
+
+- ['Specific Conductance', 'Specific Conductivity', 'Temperature', 'Turbidity', 'pH']
+- Specific Conductance' vs 'Specific Conductivity'?
+- unit change for SC as well?
+- detection_limit of 0
+- look at single or low occurance of locations and parameters
+- have locations changed? see new postgres db
+- remove unecessary columns for this app
+
 # Groundwater Protection Monitoring Report
 
 A tool used in anaylzing and visualizing monitoring data for reports.

@@ -13,9 +13,10 @@ class Data:
         # SELECT DISTINCT location FROM lab
         return self.df.index.unique('location')
 
-    @property
-    def parameters(self):
+    def get_parameters(self, location):
         # SELECT DISTINCT parameter FROM lab
+        if location:
+            return self.df.loc[(location)].index.unique('parameter')
         return self.df.index.unique('parameter')
 
     def fill_na(self):

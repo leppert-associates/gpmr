@@ -26,38 +26,33 @@ app.layout = html.Div([
         ], className='flex')
     ]),
     html.Aside(children=[
-        html.H2('Input'),
-        html.Label('Monitoring Well'),
-        dcc.Dropdown(id='location',
-                     options=[
-                         {'label': loc, 'value': loc} for loc in data.locations
-                     ],
-                     multi=False,
-                     placeholder='Select a well'
-                     ),
-        html.Label('Analyte'),
-        dcc.Dropdown(id='parameter',
-                     options=[
-                         {'label': param, 'value': param} for param in data.parameters
-                     ],
-                     multi=False,
-                     placeholder='Select a parameter'
-                     ),
-        html.Label('Y-Axis Type'),
-        dcc.RadioItems(
+        html.Div([html.H2('Input'),
+                  html.Label('Monitoring Well', className='label'),
+                  dcc.Dropdown(id='location',
+                               options=[
+                                   {'label': loc, 'value': loc} for loc in data.locations
+                               ],
+                               placeholder='Select a well',
+                               ),
+                  html.Label('Analyte', className='label'),
+                  dcc.Dropdown(id='parameter',
+                               options=[],
+                               placeholder='Select a parameter',
+                               ),
+                  html.Label('Y-Axis Type', className='label'),
+                  dcc.RadioItems(
             id='yaxis-type',
             options=[{'label': i, 'value': i} for i in ['Linear', 'Log']],
             value='Linear',
             labelStyle={'display': 'inline-block'}
-        ),
+        )], className='wrapper'),
         html.Div([html.H2('Output'),
                   dcc.Loading(type='circle', color='#4c72b0', children=[
                       html.Div(id='output_container',
                                className='output container', children=[])
-                  ], className='wrapper')])], id='user_input', className='container'),
+                  ])], className='wrapper')], id='user_input', className='container'),
     html.Main(children=[html.H2('Display'),
-                        dcc.Graph(id='linechart', responsive=True, figure=px.line(
-                            None, template='seaborn'))], id='display', className='container')
+                        dcc.Graph(id='linechart', responsive=True, figure={})], id='display', className='container')
 ], id='root')
 
 
@@ -75,7 +70,7 @@ def update_graph(location, parameter, yaxis_type):
             df = data.fill_na().get_data(location, parameter)
             if df.empty:
                 print('DataFrame is empty!')
-                return 'No data to display', px.line(None, template='seaborn')
+                return 'No data to display', px.line(None)
             desc_list = api.get_description(df)
             summary = html.Ul(
                 id='sum-list', children=[html.Li(f"{i[0]}: {i[1]}") for i in desc_list])
@@ -90,7 +85,6 @@ def update_graph(location, parameter, yaxis_type):
                     "datetime": "Date",
                     "value": f"Concentration ({df.unit[0]})"
                 },
-                template='seaborn',
                 markers=True,
             )
             fig.update_yaxes(type='linear' if yaxis_type ==
@@ -99,10 +93,20 @@ def update_graph(location, parameter, yaxis_type):
             return summary, fig
 
         except KeyError:
-            return 'No data for selection', px.line(None, template='seaborn')
+            return 'No data for selection', px.line(None)
 
     else:
-        return '', px.line(None, template='seaborn')
+        return '', px.line(None)
+
+
+@app.callback(
+    Output('parameter', 'options'),
+    Input('location', 'value'),
+)
+def update_params(location):
+    if location:
+        return [{'label': param, 'value': param} for param in data.get_parameters(location)]
+    return []
 
 
 if __name__ == '__main__':
