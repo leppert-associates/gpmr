@@ -13,8 +13,10 @@ load_dotenv()
 app = dash.Dash(__name__, title='GPMR')
 server = app.server
 
-connection_uri = os.getenv('POSTGRES_URI')
-engine = SqlachemyEngine(connection_uri).create_engine()
+uri = os.getenv('DATABASE_URL')
+if uri.startswith('postgres://'):
+    uri = uri.replace('postgres://', 'postgresql://', 1)
+engine = SqlachemyEngine(uri).create_engine()
 facility = Facility(engine, 'deertrail')
 
 app.layout = html.Div([

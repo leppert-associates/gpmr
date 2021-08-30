@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from sqlalchemy import *
 from sqlalchemy.orm import Session
+import pandas as pd
 
 
 class Engine(ABC):
@@ -54,3 +55,17 @@ class Facility():
             self.table.c.parameter == parameter, self.table.c.location == location)
         with Session(self.engine) as session:
             return session.execute(stmt)
+
+
+def upload_db(csv_file: str, uri: str):
+    '''FIXME: need to check if data exists in table '''
+    df = pd.read_csv(csv_file, parse_dates=['datetime']).sort_values(
+        by='datetime').sort_index()
+    engine = create_engine(uri)
+    if not engine.dialect.has_schema(engine, 'lab'):
+        engine.execute(schema.CreateSchema('lab'))
+    df.to_sql('deertrail',
+              con=engine,
+              schema='lab',
+              if_exists='append',
+              index=False)
