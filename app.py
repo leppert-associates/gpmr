@@ -10,14 +10,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-app = dash.Dash(__name__, title='GPMR')
-server = app.server
-
 uri = os.getenv('DATABASE_URL')
-if uri.startswith('postgres://'):
-    uri = uri.replace('postgres://', 'postgresql://', 1)
 engine = SqlachemyEngine(uri).create_engine()
-facility = Facility(engine, 'deertrail')
+facility = Facility(engine, 'deertrail', 'lab')
+
+app = dash.Dash(__name__, title='GPMR', meta_tags=[
+    {"name": "language", "content": "es"},
+    {"name": "viewport", "content": "width=device-width, initial-scale=1"}
+])
+server = app.server
 
 app.layout = html.Div([
     html.Nav([
@@ -82,12 +83,10 @@ def update_graph(location, parameter, yaxis_type):
             df.sort_values(by='datetime')
             df['value'].fillna(
                 value=df['detection_limit']/2, inplace=True)
-            # if df.empty:
-            #     return 'No data to display 1', px.line(None)
-            desc_list = list(df['value'].describe(
-            ).reset_index().itertuples(index=False, name=None))
+            desc = df['value'].describe(
+            ).reset_index().itertuples(index=False, name=None)
             summary = html.Ul(
-                id='sum-list', children=[html.Li(f"{i[0]}: {i[1]}") for i in desc_list])
+                id='sum-list', children=[html.Li(f"{i[0]}: {i[1]:.2f}") for i in list(desc)])
 
             # Plotly Express
             fig = px.line(
@@ -118,7 +117,6 @@ def update_graph(location, parameter, yaxis_type):
     Input('location', 'value'),
 )
 def update_params(location):
-    print(location)
     params = facility.get_parameters_by_location(location)
     if location:
         return [{'label': param, 'value': param} for param in [p[0] for p in params]]

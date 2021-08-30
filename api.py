@@ -12,35 +12,39 @@ class Engine(ABC):
 
 class SqlachemyEngine(Engine):
 
-    def __init__(self, connection_uri) -> None:
+    def __init__(self, uri) -> None:
         super().__init__()
-        self.connection_uri = connection_uri
+        if uri.startswith('postgres://'):
+            self.uri = uri.replace('postgres://', 'postgresql://', 1)
+        self.uri = uri
 
     def create_engine(self):
-        return create_engine(
-            self.connection_uri,
-            echo=True, future=True)
+        return create_engine(self.uri)
 
 
 class Facility():
 
-    def __init__(self, engine: Engine, facility: str) -> None:
+    def __init__(self, engine: Engine, facility: str, schema: str) -> None:
         self.engine = engine
         self.facility = facility
-        self.meta = MetaData()
-        self.table = Table(self.facility, self.meta,
-                           schema='lab', autoload_with=self.engine)
+        self.schema = schema
+        if self.schema not in inspect(self.engine).get_schema_names():
+            self.engine.execute(schema.CreateSchema(self.schema))
+        self.table = Table(self.facility, MetaData(),
+                           schema=self.schema, autoload_with=self.engine)
 
     def get_fields(self):
         return self.table.columns.keys()
 
     def get_locations(self):
-        stmt = select(self.table.c.location).distinct()
+        stmt = select(self.table.c.location).distinct().order_by(
+            self.table.c.location)
         with Session(self.engine) as session:
             return session.execute(stmt)
 
     def get_parameters(self):
-        stmt = select(self.table.c.parameter).distinct()
+        stmt = select(self.table.c.parameter).distinct().order_by(
+            self.table.c.parameter)
         with Session(self.engine) as session:
             return session.execute(stmt)
 
@@ -56,16 +60,12 @@ class Facility():
         with Session(self.engine) as session:
             return session.execute(stmt)
 
-
-def upload_db(csv_file: str, uri: str):
-    '''FIXME: need to check if data exists in table '''
-    df = pd.read_csv(csv_file, parse_dates=['datetime']).sort_values(
-        by='datetime').sort_index()
-    engine = create_engine(uri)
-    if not engine.dialect.has_schema(engine, 'lab'):
-        engine.execute(schema.CreateSchema('lab'))
-    df.to_sql('deertrail',
-              con=engine,
-              schema='lab',
-              if_exists='append',
-              index=False)
+    def csv_to_db(self, csv_file: str):
+        '''FIXME: need to check if data exists in table '''
+        df = pd.read_csv(csv_file, parse_dates=['datetime']).sort_values(
+            by='datetime', inplace=True)
+        df.to_sql(self.facility,
+                  con=self.engine,
+                  schema=self.schema,
+                  if_exists='append',
+                  index=False)
