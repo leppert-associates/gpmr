@@ -13,9 +13,8 @@ class Engine(ABC):
 class SqlachemyEngine(Engine):
 
     def __init__(self, uri) -> None:
-        super().__init__()
         if uri.startswith('postgres://'):
-            self.uri = uri.replace('postgres://', 'postgresql://', 1)
+            uri = uri.replace('postgres://', 'postgresql://', 1)
         self.uri = uri
 
     def create_engine(self):
