@@ -1,10 +1,11 @@
 import os
 import dash
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dcc
+from dash import html
 from dash.dependencies import Input, Output
 import plotly.express as px
 import pandas as pd
+from flask_caching import Cache
 from api import SqlachemyEngine, Facility
 from dotenv import load_dotenv
 
@@ -18,12 +19,18 @@ app = dash.Dash(__name__, title='GPMR', meta_tags=[
     {"name": "language", "content": "es"},
     {"name": "viewport", "content": "width=device-width, initial-scale=1"}
 ])
-server = app.server
+
+cache = Cache(app.server, config={
+    'CACHE_TYPE': 'redis',
+    'CACHE_REDIS_URL': os.getenv('REDIS_URL')
+})
+app.config.suppress_callback_exceptions = True
+timeout = 20  # in seconds
 
 app.layout = html.Div([
     html.Nav([
         html.Div([
-            html.Img(src=app.get_asset_url('logo.png'),
+            html.Img(src=app.get_asset_url('logo.png'), alt='logo',
                      style={'height': '2rem'}),
             dcc.Link(
                 html.H1('GPMR'), href='/', className='title')
@@ -38,9 +45,8 @@ app.layout = html.Div([
         html.Div([html.H2('Input'),
                   html.Label('Monitoring Well', className='label'),
                   dcc.Dropdown(id='location',
-                               options=[
-                                   {'label': loc, 'value': loc} for loc in [l[0] for l in facility.get_locations()]
-                               ],
+                               options=[{'label': loc, 'value': loc} for loc in [
+                                   l[0] for l in facility.get_locations()]],
                                placeholder='Select a well',
                                ),
                   html.Label('Analyte', className='label'),
@@ -61,8 +67,19 @@ app.layout = html.Div([
                                className='output container', children=[])
                   ])], className='wrapper')], id='user_input', className='container'),
     html.Main(children=[html.H2('Display'),
-                        dcc.Graph(id='linechart', responsive=True, figure={})], id='display', className='container')
+                        dcc.Graph(id='linechart', responsive=True, figure={})], id='display', className='container'),
 ], id='root')
+
+
+@app.callback(
+    Output('parameter', 'options'),
+    Input('location', 'value'))
+@cache.memoize(timeout=timeout)
+def update_params(location):
+    if location:
+        params = facility.get_parameters_by_location(location)
+        return [{'label': param, 'value': param} for param in [p[0] for p in params]]
+    return []
 
 
 # Connect the Plotly graphs with Dash Components
@@ -73,54 +90,43 @@ app.layout = html.Div([
     Input('parameter', 'value'),
     Input('yaxis-type', 'value'),
 )
+@cache.memoize(timeout=timeout)
 def update_graph(location, parameter, yaxis_type):
     if location and parameter:
-        try:
-            results = facility.get_values_by_location(
-                location, parameter)
-            columns = facility.get_fields()
-            df = pd.DataFrame(results, columns=columns)
-            df.sort_values(by='datetime')
-            df['value'].fillna(
-                value=df['detection_limit']/2, inplace=True)
-            desc = df['value'].describe(
-            ).reset_index().itertuples(index=False, name=None)
-            summary = html.Ul(
-                id='sum-list', children=[html.Li(f"{i[0]}: {i[1]:.2f}") for i in list(desc)])
-
-            # Plotly Express
-            fig = px.line(
-                df,
-                x='datetime',
-                y='value',
-                title='Time vs Concentration',
-                labels={
-                    "datetime": "Date",
-                    "value": f"Concentration ({df.unit[0]})"
-                },
-                markers=True,
-            )
-            fig.update_yaxes(type='linear' if yaxis_type ==
-                             'Linear' else 'log')
-            fig.update_layout(transition_duration=250)
-            return summary, fig
-
-        except KeyError:
-            return 'No data for selection 2', px.line(None)
-
+        results = facility.get_values_by_location(
+            location, parameter)
+        columns = facility.get_fields()
+        df = pd.DataFrame(results, columns=columns)
+        if df.empty:
+            return 'No data for current selection', px.line(None)
+        df.sort_values(by='datetime')
+        df['value'].fillna(
+            value=df['detection_limit']/2, inplace=True)
+        # Summary statistics
+        desc = df['value'].describe(
+        ).reset_index().itertuples(index=False, name=None)
+        summary = html.Ul(
+            id='sum-list', children=[html.Li(f"{i[0]}: {i[1]:.2f}") for i in list(desc)])
+        # Line Chart
+        fig = px.line(
+            df,
+            x='datetime',
+            y='value',
+            title='Time vs Concentration',
+            labels={
+                "datetime": "Date",
+                "value": f"Concentration ({df.unit[0]})"
+            },
+            markers=True,
+        )
+        fig.update_yaxes(type='linear' if yaxis_type ==
+                         'Linear' else 'log')
+        fig.update_layout(transition_duration=250)
+        return summary, fig
+    elif location:
+        return 'Please select a parameter', px.line(None)
     else:
         return '', px.line(None)
-
-
-@app.callback(
-    Output('parameter', 'options'),
-    Input('location', 'value'),
-)
-def update_params(location):
-    params = facility.get_parameters_by_location(location)
-    if location:
-        return [{'label': param, 'value': param} for param in [p[0] for p in params]]
-    return []
 
 
 if __name__ == '__main__':

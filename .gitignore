@@ -1,8 +1,8 @@
 __pycahce__
 Pipfile.lock
+cache-directory
 venv
 *.pyc
 .DS_Store
 .vscode
-*.accdb
 .env
