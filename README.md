@@ -1,22 +1,16 @@
 # Groundwater Protection Monitoring Report
 
-A tool used in analyzing and visualizing monitoring well data for permit reports.
+A data visualization dashboard for monitoring well data.
 
 ## Setup
 
-Run the command `pipenv install` to install the necessary packages.
+Run the command `pip install -r requirements.txt` to install the required packages.
 
 ## Development Server
 
-To start a development server, first enter the project environment with `pipenv shell`, then start the application by calling the script `py app.py`.
-
-```sh
-pipenv shell
-py index.py
-```
-
-The development will start on localhost port 8050, `http://127.0.0.1:8050/` by default.
+To run a development server, start the application with `py app.py`. The server defaults to localhost port 8050, `http://127.0.0.1:8050/`.
 
 ## Production
 
-To update `requirements.txt` run `pipreqs --force`. Be sure to add `gunicorn`.
+Install `gunicorn` and `heroku-cli` to deploy application.
+Enable `postgres` and `redis` addons.

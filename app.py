@@ -11,20 +11,18 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+facility = 'deertrail'
 uri = os.getenv('DATABASE_URL')
 engine = SqlachemyEngine(uri).create_engine()
-facility = Facility(engine, 'deertrail', 'lab')
+facility = Facility(engine, facility, 'lab')
 
-app = dash.Dash(__name__, title='GPMR', meta_tags=[
-    {"name": "language", "content": "es"},
-    {"name": "viewport", "content": "width=device-width, initial-scale=1"}
-])
-
-cache = Cache(app.server, config={
+app = dash.Dash(__name__, title='GPMR', suppress_callback_exceptions=True,
+                meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}])
+server = app.server
+cache = Cache(server, config={
     'CACHE_TYPE': 'redis',
     'CACHE_REDIS_URL': os.getenv('REDIS_URL')
 })
-app.config.suppress_callback_exceptions = True
 timeout = 20  # in seconds
 
 app.layout = html.Div([
@@ -53,6 +51,7 @@ app.layout = html.Div([
                   dcc.Dropdown(id='parameter',
                                options=[],
                                placeholder='Select a parameter',
+                               disabled=True
                                ),
                   html.Label('Y-Axis Type', className='label'),
                   dcc.RadioItems(
@@ -73,13 +72,14 @@ app.layout = html.Div([
 
 @app.callback(
     Output('parameter', 'options'),
+    Output('parameter', 'disabled'),
     Input('location', 'value'))
 @cache.memoize(timeout=timeout)
 def update_params(location):
     if location:
         params = facility.get_parameters_by_location(location)
-        return [{'label': param, 'value': param} for param in [p[0] for p in params]]
-    return []
+        return [{'label': param, 'value': param} for param in [p[0] for p in params]], False
+    return [], True
 
 
 # Connect the Plotly graphs with Dash Components
