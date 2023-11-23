@@ -1,8 +1,5 @@
 import os
-import dash
-from dash import dcc
-from dash import html
-from dash.dependencies import Input, Output
+from dash import Dash, html, dcc, callback, Output, Input
 import plotly.express as px
 import pandas as pd
 from flask_caching import Cache
@@ -16,7 +13,7 @@ uri = os.getenv('DATABASE_URL')
 engine = SqlachemyEngine(uri).create_engine()
 facility = Facility(engine, facility, 'lab')
 
-app = dash.Dash(__name__, title='GPMR', suppress_callback_exceptions=True,
+app = Dash.Dash(__name__, title='GPMR', suppress_callback_exceptions=True,
                 meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}])
 server = app.server
 cache = Cache(server, config={
@@ -70,7 +67,7 @@ app.layout = html.Div([
 ], id='root')
 
 
-@app.callback(
+@callback(
     Output('parameter', 'options'),
     Output('parameter', 'disabled'),
     Input('location', 'value'))
@@ -83,7 +80,7 @@ def update_params(location):
 
 
 # Connect the Plotly graphs with Dash Components
-@ app.callback(
+@callback(
     Output('output_container', 'children'),
     Output('linechart', 'figure'),
     Input('location', 'value'),
